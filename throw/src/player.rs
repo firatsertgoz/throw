@@ -17,6 +17,7 @@ impl Plugin for PlayerPlugin {
 
 fn move_player(
     mut controllers: Query<&mut KinematicCharacterController>,
+    mut character_query: Query<&mut Transform, (With<Player>, Without<Camera3d>)>,
     keyboard: Res<Input<KeyCode>>,
     time: Res<Time>,
     camera_query: Query<&Transform, (With<Camera3d>, Without<Player>)>,
@@ -42,8 +43,15 @@ fn move_player(
         }
 
         let movement = to_move.normalize_or_zero() * PLAYER_SPEED * time.delta_seconds();
-
+        to_move.y = 0.0;
         player_transform.translation = Some(movement);
+
+        if movement.length_squared() > 0.0 {
+            character_query
+                .get_single_mut()
+                .unwrap()
+                .look_to(-to_move, Vec3::Y);
+        }
     }
 }
 fn spawn_player(
@@ -53,8 +61,8 @@ fn spawn_player(
 ) {
     let player = (
         SceneBundle {
-            scene: assets.load("Ninja.glb#Scene0"),
-            transform: Transform::from_xyz(0.0, 0.5, 0.0),
+            scene: assets.load("Ninja-xGYmeDpfTu.glb#Scene0"),
+            transform: Transform::from_xyz(0.0, 0.1, 0.0).with_scale(Vec3::new(0.1, 0.1, 0.1)),
             ..default()
         },
         Player,

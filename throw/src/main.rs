@@ -2,7 +2,7 @@ mod camera;
 mod player;
 
 use bevy::prelude::*;
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+// use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier3d::prelude::*;
 use bevy_third_person_camera::*;
 
@@ -11,7 +11,7 @@ use player::PlayerPlugin;
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins)
-        .add_plugins(WorldInspectorPlugin::new())
+        // .add_plugins(WorldInspectorPlugin::new())
         .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
         .add_plugins(RapierDebugRenderPlugin::default())
         .add_plugins(PlayerPlugin)
@@ -19,7 +19,6 @@ fn main() {
         .add_plugins(ThirdPersonCameraPlugin)
         .add_systems(Startup, setup_graphics)
         .add_systems(Startup, setup_physics)
-        .add_systems(Update, print_ball_altitude)
         // .add_systems(Update, move_player)
         .run();
 }
@@ -53,10 +52,4 @@ fn setup_physics(
         .spawn(Collider::cuboid(100.0, 0.1, 100.0))
         .insert(TransformBundle::from(Transform::from_xyz(0.0, -2.0, 0.0)))
         .insert(floor);
-}
-
-fn print_ball_altitude(positions: Query<&Transform, With<RigidBody>>) {
-    for transform in positions.iter() {
-        println!("Ball altitude: {}", transform.translation.y);
-    }
 }
