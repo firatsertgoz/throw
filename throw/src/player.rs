@@ -1,17 +1,25 @@
 use bevy::prelude::*;
+use bevy_gltf_blueprints::*;
 use bevy_rapier3d::prelude::*;
 use bevy_third_person_camera::*;
 
 const PLAYER_SPEED: f32 = 5.0;
 
-#[derive(Debug, Component)]
+#[derive(Component, Reflect, Default, Debug)]
+#[reflect(Component)]
 pub struct Player;
+
+#[derive(Component, Reflect, Default, Debug)]
+#[reflect(Component)]
+pub struct Monster;
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
+        app.register_type::<Player>();
+        app.register_type::<Monster>();
         app.add_systems(Update, move_player);
-        app.add_systems(Startup, spawn_player);
+        //app.add_systems(Update, spawn_blueprint);
     }
 }
 
@@ -41,6 +49,9 @@ fn move_player(
         if keyboard.pressed(KeyCode::D) {
             to_move += cam.right();
         }
+        if keyboard.pressed(KeyCode::Space) {
+            to_move += cam.up();
+        }
 
         let movement = to_move.normalize_or_zero() * PLAYER_SPEED * time.delta_seconds();
         to_move.y = 0.0;
@@ -53,29 +64,4 @@ fn move_player(
                 .look_to(-to_move, Vec3::Y);
         }
     }
-}
-fn spawn_player(
-    mut commands: Commands,
-    assets: Res<AssetServer>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    let player = (
-        SceneBundle {
-            scene: assets.load("Ninja-xGYmeDpfTu.glb#Scene0"),
-            transform: Transform::from_xyz(0.0, 0.1, 0.0).with_scale(Vec3::new(0.1, 0.1, 0.1)),
-            ..default()
-        },
-        Player,
-        ThirdPersonCameraTarget,
-    );
-
-    commands
-        .spawn(KinematicCharacterController {
-            custom_mass: Some(1.0),
-            ..default()
-        })
-        .insert(Collider::cuboid(10.0, 0.0, 10.0))
-        .insert(Restitution::coefficient(0.1))
-        .insert(TransformBundle::from(Transform::from_xyz(0.0, 4.0, 0.0)))
-        .insert(player);
 }
