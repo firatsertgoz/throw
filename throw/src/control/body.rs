@@ -71,19 +71,5 @@ fn setup_spine(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    // commands
-    //     .spawn(RigidBody::Dynamic)
-    //     .insert(Collider::capsule(
-    //         Vec3::new(10.0, 10.0, 10.0),
-    //         Vec3::new(0.0, 0.0, 0.0),
-    //         3.0,
-    //     ))
-    //     .insert(TransformBundle::from(Transform::from_xyz(0.0, 0.0, 0.0)))
-    //     .insert(GravityScale(1.0))
-    //     // Adds Transform and GlobalTransform components
-    //     .insert(TransformBundle::from(Transform::from_xyz(0.0, 5.0, 0.0)))
-    //     // Adds movement to our dynamic body
-    //     .insert(TransformBundle::from(Transform::from_xyz(0.0, 4.0, 0.0)))
-    //     // Changes the scale of our gravity for this entity
-    //     .insert(GravityScale(2.0));
+    
 }

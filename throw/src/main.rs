@@ -43,6 +43,7 @@ fn main() {
             Update,
             spawn_blueprint.run_if(in_state(AppState::AppRunning)),
         )
+        .add_systems(Update, spawn_thing.run_if(in_state(AppState::AppRunning)))
         .add_systems(Startup, setup_physics)
         .add_plugins(LightingPlugin)
         .add_plugins(EditorPlugin::default())
@@ -66,12 +67,6 @@ fn setup_physics(mut commands: Commands) {
     commands
         .spawn((Collider::cuboid(100.0, 0.1, 100.0), Ground))
         .insert(TransformBundle::from(Transform::from_xyz(0.0, -2.0, 0.0)));
-
-    commands
-        .spawn(RigidBody::Dynamic)
-        .insert(Collider::ball(0.5))
-        .insert(Restitution::coefficient(0.7))
-        .insert(TransformBundle::from(Transform::from_xyz(0.0, 4.0, 0.0)));
 }
 
 #[derive(Resource)]
@@ -133,6 +128,49 @@ fn spawn_blueprint(
             ))
             .id();
         //  commands.entity(world).add_child(new_entity);
+    }
+}
+
+pub fn spawn_thing(mut commands: Commands, keycode: Res<Input<KeyCode>>) {
+    if keycode.just_pressed(KeyCode::G) {
+        let parent_entity = commands
+            .spawn((
+                TransformBundle::from(Transform::from_xyz(10., 10., 10.)),
+                RigidBody::Dynamic,
+            ))
+            .with_children(|child_builder| {
+                child_builder.spawn((
+                    TransformBundle::from(Transform::from_xyz(0., 2., 0.)),
+                    Collider::cuboid(0.2, 2., 0.2),
+                ));
+                child_builder.spawn((
+                    TransformBundle::from(Transform::from_xyz(0., 0., 0.)),
+                    Collider::cuboid(0.7, 0.3, 0.7),
+                ));
+            })
+            .id();
+
+        let joint_positions = [
+            [-0.8, 0., 0.8],
+            [0.8, 0., 0.8],
+            [-0.8, 0., -0.8],
+            [0.8, 0., -0.8],
+            [0., 2., 0.],
+        ];
+
+        for join_position in joint_positions {
+            let position = Vec3::from_array(join_position);
+
+            let joint = FixedJointBuilder::new().local_anchor1(position);
+
+            commands.spawn((
+                TransformBundle::from(Transform::from_translation(position)),
+                RigidBody::Dynamic,
+                Collider::ball(0.5),
+                CollisionGroups::new(Group::NONE, Group::NONE),
+                ImpulseJoint::new(parent_entity, joint),
+            ));
+        }
     }
 }
 
